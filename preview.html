@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Take Care</title>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#scene {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, #87CEEB 0%, #b8e0f7 38%, #d4efc0 62%, #a8d576 100%);
+  position: relative;
+  overflow: hidden;
+  font-family: 'Apple Garamond', 'Garamond', 'EB Garamond', Georgia, serif;
+}
+
+#sun {
+  position: absolute;
+  top: 48px;
+  right: 120px;
+  width: 86px;
+  height: 86px;
+  background: #FFD700;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 18px rgba(255,215,0,0.20),
+    0 0 0 36px rgba(255,215,0,0.09),
+    0 0 0 56px rgba(255,215,0,0.04);
+}
+
+.cloud {
+  position: absolute;
+  background: #fff;
+  border-radius: 50px;
+  opacity: 0.84;
+}
+
+#text-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -62%);
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+#take-care {
+  font-size: clamp(52px, 10vw, 110px);
+  font-weight: 300;
+  color: #722F37;
+  letter-spacing: 0.04em;
+  text-shadow: 1px 2px 12px rgba(255,245,200,0.75);
+}
+
+#sub {
+  font-size: clamp(13px, 2vw, 20px);
+  font-weight: 300;
+  color: #8a5a44;
+  letter-spacing: 0.22em;
+  margin-top: 14px;
+}
+
+#footer {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  color: #6e4b3a;
+  opacity: 0.85;
+  z-index: 15;
+}
+
+canvas#confetti-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 20;
+}
+
+svg#scene-svg {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%;
+  z-index: 5;
+}
+</style>
+</head>
+
+<body>
+<div id="scene">
+
+<div id="sun"></div>
+
+<div class="cloud" style="width:130px;height:38px;top:70px;left:80px;">
+  <div style="position:absolute;width:60px;height:60px;background:#fff;border-radius:50%;top:-26px;left:18px;"></div>
+  <div style="position:absolute;width:42px;height:42px;background:#fff;border-radius:50%;top:-16px;left:62px;"></div>
+</div>
+
+<div id="text-center">
+  <div id="take-care">Take Care</div>
+  <div id="sub">you are loved ✦</div>
+</div>
+
+<svg id="scene-svg" viewBox="0 0 900 240">
+  <defs id="defs"></defs>
+  <rect x="0" y="130" width="900" height="110" fill="#5a9e2f"/>
+  <rect x="0" y="155" width="900" height="85" fill="#4a8c20"/>
+  <g id="grass-blades"></g>
+  <g id="sunflowers"></g>
+</svg>
+
+<canvas id="confetti-canvas"></canvas>
+<div id="footer">made with love by sierra</div>
+
+</div>
+
+<script>
+(function () {
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('scene-svg');
+const defs = document.getElementById('defs');
+
+function grassBlade(x, h, color) {
+  const el = document.createElementNS(NS, 'path');
+  const sway = (Math.random() - 0.5) * 20;
+  el.setAttribute('d', `M${x},162 Q${x + sway},${162 - h / 2} ${x + sway * 1.5},${162 - h}`);
+  el.setAttribute('fill', 'none');
+  el.setAttribute('stroke', color);
+  el.setAttribute('stroke-width', 2);
+  el.setAttribute('stroke-linecap', 'round');
+  return el;
+}
+
+const grassGroup = document.getElementById('grass-blades');
+for (let i = 0; i < 200; i++) {
+  grassGroup.appendChild(grassBlade(Math.random() * 900, 20 + Math.random() * 40, '#4f9a22'));
+}
+
+function createGradient() {
+  const id = 'grad' + Math.random().toString(36).slice(2);
+  const g = document.createElementNS(NS, 'linearGradient');
+  g.setAttribute('id', id);
+
+  const s1 = document.createElementNS(NS, 'stop');
+  s1.setAttribute('offset', '0%');
+  s1.setAttribute('stop-color', '#FFD700');
+
+  const s2 = document.createElementNS(NS, 'stop');
+  s2.setAttribute('offset', '100%');
+  s2.setAttribute('stop-color', '#FFB800');
+
+  g.appendChild(s1);
+  g.appendChild(s2);
+  defs.appendChild(g);
+
+  return id;
+}
+
+function drawSunflower(x, h) {
+  const g = document.createElementNS(NS, 'g');
+  const top = 162 - h;
+
+  const stem = document.createElementNS(NS, 'line');
+  stem.setAttribute('x1', x);
+  stem.setAttribute('y1', 162);
+  stem.setAttribute('x2', x);
+  stem.setAttribute('y2', top);
+  stem.setAttribute('stroke', '#4a7c1e');
+  stem.setAttribute('stroke-width', 3);
+  g.appendChild(stem);
+
+  const grad = createGradient();
+
+  for (let i = 0; i < 14; i++) {
+    const angle = (i / 14) * Math.PI * 2;
+    const px = x + Math.cos(angle) * 10;
+    const py = top + Math.sin(angle) * 10;
+
+    const petal = document.createElementNS(NS, 'ellipse');
+    petal.setAttribute('cx', px);
+    petal.setAttribute('cy', py);
+    petal.setAttribute('rx', 6);
+    petal.setAttribute('ry', 12);
+    petal.setAttribute('fill', `url(#${grad})`);
+    petal.setAttribute('transform', `rotate(${angle * 180 / Math.PI},${px},${py})`);
+    g.appendChild(petal);
+  }
+
+  const core = document.createElementNS(NS, 'circle');
+  core.setAttribute('cx', x);
+  core.setAttribute('cy', top);
+  core.setAttribute('r', 7);
+  core.setAttribute('fill', '#3e2000');
+  g.appendChild(core);
+
+  return g;
+}
+
+const sf = document.getElementById('sunflowers');
+for (let i = 0; i < 12; i++) {
+  sf.appendChild(drawSunflower(50 + i * 70, 50 + Math.random() * 50));
+}
+
+})();
+</script>
+
+</body>
+</html>
